@@ -2,7 +2,7 @@ package main
 
 import (
 	"api-satu/auth"
-	"api-satu/handler"
+	"api-satu/campaign"
 	"api-satu/respons"
 	"api-satu/user"
 	"fmt"
@@ -22,19 +22,39 @@ func main() {
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
-		newRepository := user.NewRepository(db)
-		newService := user.NewService(newRepository)
-		newAuth := auth.NewAuth()
-		newHandler := handler.NewHandler(newService, newAuth)
-		router := gin.Default()
-		api := router.Group("v1")
-		api.POST("user", newHandler.CreateHandler)
-		api.POST("auth-user", newHandler.AuthUserHandler)
-		api.POST("check-email", newHandler.CheckEmailUserHandler)
-		api.POST("update-image", authMiddleware(newAuth, newService), newHandler.UpdateImageUserHandler)
-		router.Run()
+
+		// db.Debug().AutoMigrate(&user.User{})
+		// db.Debug().AutoMigrate(&campaign.Compaign{})
+		// db.Debug().AutoMigrate(&campaign.CampaignImage{})
+		//repository campaign
+		campaignNewRepository := campaign.NewRepository(db)
+		getAll, err := campaignNewRepository.GetByID(77)
+		if err != nil {
+			fmt.Println(err.Error())
+		} else {
+			for _, key := range getAll {
+				fmt.Println(key.UserID)
+				fmt.Println(key.Name)
+				fmt.Println(key.CampaignImage[0].FileNamw)
+			}
+		}
+
+		//repository user
+		// newRepository := user.NewRepository(db)
+		// newService := user.NewService(newRepository)
+		// newAuth := auth.NewAuth()
+		// newHandler := handler.NewHandler(newService, newAuth)
+		// router := gin.Default()
+		// api := router.Group("v1")
+		// api.POST("user", newHandler.CreateHandler)
+		// api.POST("auth-user", newHandler.AuthUserHandler)
+		// api.POST("check-email", newHandler.CheckEmailUserHandler)
+		// api.POST("update-image", authMiddleware(newAuth, newService), newHandler.UpdateImageUserHandler)
+		// router.Run()
+
 	}
 }
+
 func authMiddleware(auth auth.Auth, service user.Service) gin.HandlerFunc {
 	return func(g *gin.Context) {
 		authHeader := g.GetHeader("Authorization")
