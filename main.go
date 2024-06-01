@@ -35,12 +35,11 @@ func main() {
 		router.Run()
 	}
 }
-
 func authMiddleware(auth auth.Auth, service user.Service) gin.HandlerFunc {
 	return func(g *gin.Context) {
 		authHeader := g.GetHeader("Authorization")
 		if !strings.Contains(authHeader, "Bearer") {
-			responsValue := respons.ResponsValue("Unautorized Bearer", http.StatusUnauthorized, "Error", nil)
+			responsValue := respons.ResponsValue("Unauthorized Bearer", http.StatusUnauthorized, "Error", nil)
 			g.AbortWithStatusJSON(http.StatusUnauthorized, responsValue)
 			return
 		}
@@ -49,28 +48,71 @@ func authMiddleware(auth auth.Auth, service user.Service) gin.HandlerFunc {
 		if len(arrToken) == 2 {
 			tokenString = arrToken[1]
 		}
+
 		validationToken, err := auth.ValidationToken(tokenString)
 		if err != nil {
-			errorMessage := gin.H{"error": err.Error()}
-			responsValue := respons.ResponsValue("Unautorized validation", http.StatusUnauthorized, "Error", errorMessage)
+			errorMessage := gin.H{"errors": err.Error()}
+			responsValue := respons.ResponsValue("Unauthorized Validate Token", http.StatusUnauthorized, "Error", errorMessage)
 			g.AbortWithStatusJSON(http.StatusUnauthorized, responsValue)
 			return
 		} else {
 			claim, ok := validationToken.Claims.(jwt.MapClaims)
 			if !ok || !validationToken.Valid {
-				responsValue := respons.ResponsValue("Unautorized", http.StatusUnauthorized, "Error", nil)
+				responsValue := respons.ResponsValue("Unauthorized", http.StatusUnauthorized, "Error", nil)
 				g.AbortWithStatusJSON(http.StatusUnauthorized, responsValue)
 				return
 			}
-			userID := claim["user_id"].(float64)
-			getUserByID, err := service.GetUserByID(int(userID))
+			userID := int(claim["user_id"].(float64))
+			getUserByID, err := service.GetUserByID(userID)
 			if err != nil {
-				errorMessage := gin.H{"error": err.Error()}
-				responsValue := respons.ResponsValue("Unautorized", http.StatusUnauthorized, "Error", errorMessage)
+				errorMessage := gin.H{"errors": err.Error()}
+				responsValue := respons.ResponsValue("Unauthorize", userID, "Error", errorMessage)
 				g.AbortWithStatusJSON(http.StatusUnauthorized, responsValue)
 				return
 			}
 			g.Set("current_user", getUserByID)
 		}
+		// responsValue := respons.ResponsValue(tokenString, http.StatusOK, "Error", nil)
+		// g.AbortWithStatusJSON(http.StatusOK, responsValue)
+		// return
 	}
 }
+
+// func authMiddleware(auth auth.Auth, service user.Service) gin.HandlerFunc {
+// 	return func(g *gin.Context) {
+// 		authHeader := g.GetHeader("Authorization")
+// 		if !strings.Contains(authHeader, "Bearer") {
+// 			responsValue := respons.ResponsValue("Unautorized Bearer", http.StatusUnauthorized, "Error", nil)
+// 			g.AbortWithStatusJSON(http.StatusUnauthorized, responsValue)
+// 			return
+// 		}
+// 		var tokenString = ""
+// 		arrToken := strings.Split(authHeader, " ")
+// 		if len(arrToken) == 2 {
+// 			tokenString = arrToken[1]
+// 		}
+// 		validationToken, err := auth.ValidationToken(tokenString)
+// 		if err != nil {
+// 			errorMessage := gin.H{"error": err.Error()}
+// 			responsValue := respons.ResponsValue("Unautorized validation", http.StatusUnauthorized, "Error", errorMessage)
+// 			g.AbortWithStatusJSON(http.StatusUnauthorized, responsValue)
+// 			return
+// 		} else {
+// 			claim, ok := validationToken.Claims.(jwt.MapClaims)
+// 			if !ok || !validationToken.Valid {
+// 				responsValue := respons.ResponsValue("Unautorized", http.StatusUnauthorized, "Error", nil)
+// 				g.AbortWithStatusJSON(http.StatusUnauthorized, responsValue)
+// 				return
+// 			}
+// 			userID := claim["user_id"].(float64)
+// 			getUserByID, err := service.GetUserByID(int(userID))
+// 			if err != nil {
+// 				errorMessage := gin.H{"error": err.Error()}
+// 				responsValue := respons.ResponsValue("Unautorized", http.StatusUnauthorized, "Error", errorMessage)
+// 				g.AbortWithStatusJSON(http.StatusUnauthorized, responsValue)
+// 				return
+// 			}
+// 			g.Set("current_user", getUserByID)
+// 		}
+// 	}
+// }
