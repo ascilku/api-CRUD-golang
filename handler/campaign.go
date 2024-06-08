@@ -44,5 +44,24 @@ func (h *handlerCampign) FindAllHand(g *gin.Context) {
 	}
 	responsValue := respons.ResponsValue("Succes get all data campaign", http.StatusOK, "Succes", campaignFormatter)
 	g.JSON(http.StatusOK, responsValue)
+}
 
+func (h *handlerCampign) FindActiveImageAllHand(g *gin.Context) {
+	findAllSer, err := h.service.FindAllActiveImageAllSer()
+	if err != nil {
+		errorMessage := gin.H{"error": err.Error()}
+		errorResponsValue := respons.ResponsValue("Error Not Data campaign all active", http.StatusUnprocessableEntity, "Error", errorMessage)
+		g.JSON(http.StatusUnprocessableEntity, errorResponsValue)
+		return
+	}
+	var formatterCampaign []campaign.Formatter
+	var formatterCampaignImage []campaign.FormatterCampaignImage
+	for _, keyfindAllSer := range findAllSer {
+		for _, keyCampaignImages := range keyfindAllSer.CampaignImages {
+			formatterCampaignImage = append(formatterCampaignImage, campaign.CampaignImageFormatterCampaignImage(keyCampaignImages))
+		}
+		formatterCampaign = append(formatterCampaign, campaign.FormatterCampaign(keyfindAllSer, formatterCampaignImage))
+	}
+	responsValue := respons.ResponsValue("Success Show Data campaign all active", http.StatusOK, "Success", formatterCampaign)
+	g.JSON(http.StatusOK, responsValue)
 }

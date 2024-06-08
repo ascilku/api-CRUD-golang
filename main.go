@@ -36,6 +36,8 @@ func main() {
 		campaignRepository := campaign.NewRepository(db)
 		campaignService := campaign.NewService(campaignRepository)
 		campaignHandlerCampign := handler.NewHandlerCampign(campaignService)
+		//repository active campaign image
+
 		// router
 		router := gin.Default()
 		api := router.Group("v1")
@@ -45,6 +47,7 @@ func main() {
 		api.POST("update-image", authMiddleware(newAuth, newService), newHandler.UpdateImageUserHandler)
 		// router campaign
 		api.GET("campaign", campaignHandlerCampign.FindAllHand)
+		api.GET("campaign-active", campaignHandlerCampign.FindActiveImageAllHand)
 		router.Run()
 
 	}
