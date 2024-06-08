@@ -1,0 +1,14 @@
+ini untuk one to many model lain 
+func (r *repository) FindAllCampaignImages(campaignID int) ([]CampaignImage, error) {
+    var campaignImages []CampaignImage
+
+    // Lakukan join antara tabel Campaign dan CampaignImage berdasarkan campaignID
+    err := r.db.Joins("JOIN campaign_images ON campaigns.id = campaign_images.campaign_id").
+        Where("campaigns.id = ?", campaignID).
+        Find(&campaignImages).Error
+    if err != nil {
+        return campaignImages, err
+    }
+
+    return campaignImages, nil
+}

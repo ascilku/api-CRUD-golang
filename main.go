@@ -3,6 +3,7 @@ package main
 import (
 	"api-satu/auth"
 	"api-satu/campaign"
+	"api-satu/handler"
 	"api-satu/respons"
 	"api-satu/user"
 	"fmt"
@@ -17,40 +18,34 @@ import (
 
 func main() {
 	// refer https://github.com/go-sql-driver/mysql#dsn-data-source-name for details
-	dsn := "root:@tcp(127.0.0.1:3306)/api?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:@tcp(127.0.0.1:3306)/resauceDB?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
-
+		// migration
 		// db.Debug().AutoMigrate(&user.User{})
-		// db.Debug().AutoMigrate(&campaign.Compaign{})
+		// db.Debug().AutoMigrate(&campaign.Campaign{})
 		// db.Debug().AutoMigrate(&campaign.CampaignImage{})
+		// repository user
+		newRepository := user.NewRepository(db)
+		newService := user.NewService(newRepository)
+		newAuth := auth.NewAuth()
+		newHandler := handler.NewHandler(newService, newAuth)
 		//repository campaign
-		campaignNewRepository := campaign.NewRepository(db)
-		getAll, err := campaignNewRepository.GetByID(77)
-		if err != nil {
-			fmt.Println(err.Error())
-		} else {
-			for _, key := range getAll {
-				fmt.Println(key.UserID)
-				fmt.Println(key.Name)
-				fmt.Println(key.CampaignImage[0].FileNamw)
-			}
-		}
-
-		//repository user
-		// newRepository := user.NewRepository(db)
-		// newService := user.NewService(newRepository)
-		// newAuth := auth.NewAuth()
-		// newHandler := handler.NewHandler(newService, newAuth)
-		// router := gin.Default()
-		// api := router.Group("v1")
-		// api.POST("user", newHandler.CreateHandler)
-		// api.POST("auth-user", newHandler.AuthUserHandler)
-		// api.POST("check-email", newHandler.CheckEmailUserHandler)
-		// api.POST("update-image", authMiddleware(newAuth, newService), newHandler.UpdateImageUserHandler)
-		// router.Run()
+		campaignRepository := campaign.NewRepository(db)
+		campaignService := campaign.NewService(campaignRepository)
+		campaignHandlerCampign := handler.NewHandlerCampign(campaignService)
+		// router
+		router := gin.Default()
+		api := router.Group("v1")
+		api.POST("user", newHandler.CreateHandler)
+		api.POST("auth-user", newHandler.AuthUserHandler)
+		api.POST("check-email", newHandler.CheckEmailUserHandler)
+		api.POST("update-image", authMiddleware(newAuth, newService), newHandler.UpdateImageUserHandler)
+		// router campaign
+		api.GET("campaign", campaignHandlerCampign.FindAllHand)
+		router.Run()
 
 	}
 }
