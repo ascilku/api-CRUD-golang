@@ -48,6 +48,7 @@ func main() {
 		// router campaign
 		api.GET("campaign", campaignHandlerCampign.FindAllHand)
 		api.GET("campaign-active", campaignHandlerCampign.FindActiveImageAllHand)
+		api.GET("campaign-user", campaignHandlerCampign.FindCampaignUserHand)
 		router.Run()
 
 	}

@@ -31,7 +31,7 @@ func (s *service) FindAllActiveImageAllSer() ([]Campaign, error) {
 }
 
 func (s *service) FindAllUserByIDSer(userID int) ([]Campaign, error) {
-	if userID == 0 {
+	if userID != 0 {
 		findAllUserByID, err := s.repository.FindAllUserByID(userID)
 		if err != nil {
 			return findAllUserByID, err

@@ -4,6 +4,7 @@ import (
 	"api-satu/campaign"
 	"api-satu/respons"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -64,4 +65,17 @@ func (h *handlerCampign) FindActiveImageAllHand(g *gin.Context) {
 	}
 	responsValue := respons.ResponsValue("Success Show Data campaign all active", http.StatusOK, "Success", formatterCampaign)
 	g.JSON(http.StatusOK, responsValue)
+}
+
+func (h *handlerCampign) FindCampaignUserHand(g *gin.Context) {
+	userID, _ := strconv.Atoi(g.Query("user_id"))
+	FindAllUserByIDSer, err := h.service.FindAllUserByIDSer(userID)
+	if err != nil {
+		errorMessage := gin.H{"errors": err.Error()}
+		respons := respons.ResponsValue("Error get campaign", http.StatusUnprocessableEntity, "Error", errorMessage)
+		g.JSON(http.StatusUnprocessableEntity, respons)
+	} else {
+		respons := respons.ResponsValue("Success get campaign", http.StatusOK, "Success", FindAllUserByIDSer)
+		g.JSON(http.StatusOK, respons)
+	}
 }
