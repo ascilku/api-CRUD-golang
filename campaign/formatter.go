@@ -1,19 +1,18 @@
 package campaign
 
-type Formatter struct {
-	ID               int                      `json:"id"`
-	Name             string                   `json:"name"`
-	ShortDescription string                   `json:"shortDescription"`
-	Description      string                   `json:"description"`
-	Perks            string                   `json:"perks"`
-	BackerCount      int                      `json:"backerCount"`
-	GoalAmount       int                      `json:"goalAmount"`
-	Slug             string                   `json:"slug"`
-	CampaignImages   []FormatterCampaignImage `json:"campaignImages"`
+type formatter struct {
+	ID               int    `json:"id"`
+	Name             string `json:"name"`
+	ShortDescription string `json:"shortDescription"`
+	Description      string `json:"description"`
+	Perks            string `json:"imgURl"`
+	BackerCount      int    `json:"backerCount"`
+	GoalAmount       int    `json:"goalAmount"`
+	Slug             string `json:"slug"`
 }
 
-func FormatterCampaign(compaign Campaign, formatterCampaignImage []FormatterCampaignImage) Formatter {
-	formatter := Formatter{
+func FormatterCampaign(compaign Campaign) formatter {
+	formatter := formatter{
 		ID:               compaign.ID,
 		Name:             compaign.Name,
 		ShortDescription: compaign.ShortDescription,
@@ -22,35 +21,24 @@ func FormatterCampaign(compaign Campaign, formatterCampaignImage []FormatterCamp
 		BackerCount:      compaign.BackerCount,
 		GoalAmount:       compaign.GoalAmount,
 		Slug:             compaign.Slug,
-		CampaignImages:   formatterCampaignImage,
 	}
+	if len(compaign.CampaignImages) > 0 {
+		formatter.Perks = compaign.CampaignImages[0].FileNamw
+	}
+
 	return formatter
 }
 
-// type Formatterr struct {
-// 	Name             string          `json:"name"`
-// 	ShortDescription string          `json:"shortDescription"`
-// 	Description      string          `json:"description"`
-// 	Perks            string          `json:"perks"`
-// 	BackerCount      int             `json:"backerCount"`
-// 	GoalAmount       int             `json:"goalAmount"`
-// 	Slug             string          `json:"slug"`
-// 	CampaignImages   []CampaignImage `json:"campaignImages"`
-// }
-
-// func FormatterCampaignn(compaign Campaign) Formatter {
-// 	formatter := Formatter{
-// 		Name:             compaign.Name,
-// 		ShortDescription: compaign.ShortDescription,
-// 		Description:      compaign.Description,
-// 		Perks:            compaign.Perks,
-// 		BackerCount:      compaign.BackerCount,
-// 		GoalAmount:       compaign.GoalAmount,
-// 		Slug:             compaign.Slug,
-// 		CampaignImages:   compaign.CampaignImages,
-// 	}
-// 	return formatter
-// }
+func FormatterCampaigns(campaign []Campaign) []formatter {
+	// if len(campaign) == 0 {
+	// 	return []formatter{}
+	// }
+	formatter := []formatter{}
+	for _, keyCampaign := range campaign {
+		formatter = append(formatter, FormatterCampaign(keyCampaign))
+	}
+	return formatter
+}
 
 type FormatterCampaignImage struct {
 	ID         int    `json:"id"`

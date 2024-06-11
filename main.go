@@ -46,9 +46,7 @@ func main() {
 		api.POST("check-email", newHandler.CheckEmailUserHandler)
 		api.POST("update-image", authMiddleware(newAuth, newService), newHandler.UpdateImageUserHandler)
 		// router campaign
-		api.GET("campaign", campaignHandlerCampign.FindAllHand)
-		api.GET("campaign-active", campaignHandlerCampign.FindActiveImageAllHand)
-		api.GET("campaign-user", campaignHandlerCampign.FindCampaignUserHand)
+		api.GET("campaign", campaignHandlerCampign.FindCampaignUserHand)
 		router.Run()
 
 	}
